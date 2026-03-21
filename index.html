@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>明仁二代目 - 菜單資訊</title>
+    <link rel="icon" type="image/jpeg" href="logoc.jpg">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -14,8 +15,18 @@
             text-align: center;
         }
         .header {
-            padding: 25px 20px;
+            padding: 20px;
             background: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .header-logo {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
         }
         .brand-name {
             font-size: 1.4rem;
@@ -50,6 +61,7 @@
             gap: 12px;
             backdrop-filter: blur(10px);
             border-top: 1px solid #333;
+            z-index: 100;
         }
         .btn {
             flex: 1;
@@ -61,6 +73,7 @@
             transition: 0.3s;
             border: none;
             cursor: pointer;
+            display: inline-block;
         }
         .btn-primary {
             background-color: #d4a373;
@@ -77,6 +90,11 @@
 </head>
 <body>
 
+    <div class="header">
+        <img src="logoc.jpg" alt="Logo" class="header-logo">
+        <div class="brand-name">明仁二代目</div>
+    </div>
+
     <div class="menu-container">
         <img src="menu.jpg" alt="明仁二代目菜單" class="menu-image" onclick="window.open(this.src)">
         <p class="instruction">💡 點擊圖片可查看原圖並縮放</p>
@@ -86,15 +104,16 @@
 
     <div class="cta-group">
         <a href="https://www.foodpanda.com.tw/restaurant/vuqs/ming-ren-er-dai-mu-zhang-yu-shao-tai-zhong-zhong-dian" class="btn btn-primary" target="_blank">線上點餐</a>
-        
         <button class="btn btn-secondary" onclick="shareToFriends()">分享好友</button>
     </div>
 
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
+        // 設定基礎路徑供分享圖片使用
+        const BASE_URL = "https://sayit-studio.github.io/genpower/";
+
         async function initLIFF() {
             try {
-                // 請確保此處填入你的 LIFF ID
                 await liff.init({ liffId: "2009556470-H2tF7dft" });
             } catch (error) {
                 console.log("LIFF 初始化失敗", error);
@@ -117,10 +136,11 @@
                                 "type": "bubble",
                                 "hero": {
                                     "type": "image",
-                                    "url": "https://sayit-studio.github.io/genpower/menu.jpg",
+                                    "url": BASE_URL + "logoc.jpg",
                                     "size": "full",
-                                    "aspectRatio": "20:13",
-                                    "aspectMode": "cover"
+                                    "aspectRatio": "1:1",
+                                    "aspectMode": "cover",
+                                    "backgroundColor": "#1a1a1a"
                                 },
                                 "body": {
                                     "type": "box",
@@ -128,15 +148,18 @@
                                     "contents": [
                                         {
                                             "type": "text",
-                                            "text": "明仁二代目 - 章魚燒",
+                                            "text": "明仁二代目",
                                             "weight": "bold",
-                                            "size": "xl"
+                                            "size": "xl",
+                                            "align": "center"
                                         },
                                         {
                                             "type": "text",
                                             "text": "最好吃的章魚燒在這裡，點擊查看菜單！",
                                             "size": "sm",
-                                            "color": "#666666"
+                                            "color": "#999999",
+                                            "align": "center",
+                                            "margin": "md"
                                         }
                                     ]
                                 },
@@ -148,7 +171,7 @@
                                             "type": "button",
                                             "action": {
                                                 "type": "uri",
-                                                "label": "查看菜單",
+                                                "label": "查看菜單與點餐",
                                                 "uri": "https://liff.line.me/2009556470-H2tF7dft"
                                             },
                                             "style": "primary",
@@ -160,7 +183,7 @@
                         }
                     ]);
                     if (result) {
-                        alert("分享成功！");
+                        console.log("分享成功");
                     }
                 } catch (error) {
                     console.error("分享失敗", error);
