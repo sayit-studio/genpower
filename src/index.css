@@ -1,0 +1,216 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    border: none !important;
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  input, textarea, select {
+    border: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.15) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: white;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-bottom: 1px solid #CC1200 !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  button {
+    border: none !important;
+    outline: none !important;
+  }
+
+  button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
+:root {
+  --brand-blue: #1A2A6C;
+  --brand-red: #CC1200;
+  --brand-gold: #D4A017;
+  --brand-orange: #FF6B00;
+  --brand-dark: #0D0D0D;
+  --color-white: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: #0D0D0D;
+  color: var(--color-white);
+  font-family: 'Noto Sans TC', sans-serif;
+  overflow-x: hidden;
+}
+
+/* 全站噪點紋路 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* 全站捲軸樣式 */
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-track {
+  background: var(--brand-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand-red);
+  border-radius: 3px;
+}
+
+/* 頁面載入 Intro Animation */
+@keyframes logo-explode {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes overlay-slide-up {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+@keyframes beam-radiate {
+  0%   { opacity: 0; transform: scaleX(0); }
+  100% { opacity: 1; transform: scaleX(1); }
+}
+
+/* 金色 pulse 動畫（冠軍卡） */
+@keyframes gold-pulse {
+  0%, 100% { box-shadow: 0 0 12px 2px #D4A017aa, 0 0 40px 8px #D4A01744; }
+  50%       { box-shadow: 0 0 24px 6px #D4A017cc, 0 0 60px 16px #D4A01766; }
+}
+
+/* ripple 脈衝（投票 CTA）*/
+@keyframes ripple-pulse {
+  0%   { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* 王冠 bounce */
+@keyframes crown-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+/* 流光光點（流程連線） */
+@keyframes line-flow {
+  0%   { left: 0%; }
+  100% { left: 100%; }
+}
+
+/* 閃爍標籤 */
+@keyframes blink-slow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+@layer utilities {
+  .gold-pulse {
+    animation: gold-pulse 2s ease-in-out infinite;
+  }
+  .crown-bounce {
+    animation: crown-bounce 1s ease-in-out infinite;
+  }
+  .blink-slow {
+    animation: blink-slow 1.5s ease-in-out infinite;
+  }
+}
+
+/* 背景放射線紋理模擬 */
+.bg-radial-red {
+  background: radial-gradient(ellipse at center, #3a0a0a 0%, #0D0D0D 70%);
+}
+
+/* Section 分隔線：用 box-shadow 模擬，避免被 border reset 影響 */
+.section-divider {
+  box-shadow: 0 -1px 0 rgba(204, 18, 0, 0.25);
+}
+
+/* TakoyakiSVG 浮動動畫 */
+@keyframes takoyakiFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-6px) rotate(2deg); }
+  66%       { transform: translateY(-3px) rotate(-1deg); }
+}
+
+/* Steam 蒸氣動畫 */
+@keyframes steamRise1 {
+  0%   { transform: translateY(0) scaleX(1); opacity: 0.6; }
+  100% { transform: translateY(-30px) scaleX(1.4); opacity: 0; }
+}
+@keyframes steamRise2 {
+  0%   { transform: translateY(0) scaleX(1); opacity: 0.5; }
+  100% { transform: translateY(-28px) scaleX(0.8); opacity: 0; }
+}
+@keyframes steamRise3 {
+  0%   { transform: translateY(0) scaleX(1); opacity: 0.4; }
+  100% { transform: translateY(-32px) scaleX(1.2); opacity: 0; }
+}
+
+/* 贊助商跑馬燈 */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.sponsor-track {
+  display: flex;
+  align-items: center;
+  gap: 64px;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+  padding: 8px 0;
+}
+
+.sponsor-track:hover {
+  animation-play-state: paused;
+}
+
+@media (max-width: 768px) {
+  .sponsor-track {
+    gap: 40px;
+  }
+  .sponsor-track > div {
+    width: 120px !important;
+    height: 64px !important;
+  }
+  .sponsor-fade-left,
+  .sponsor-fade-right {
+    width: 80px !important;
+  }
+}
+
+/* prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
