@@ -32,6 +32,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ParticleExplosion from '../components/ui/ParticleExplosion'
+import { asset } from '../utils/asset'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -126,7 +127,7 @@ function RankIcon({ rank }: { rank: number }) {
   }
   return (
     <img
-      src={`/assets/icons/rank-0${rank}.png`}
+      src={asset(`/assets/icons/rank-0${rank}.png`)}
       alt={`rank-${rank}`}
       width={32}
       height={32}
@@ -458,7 +459,7 @@ export default function VotePage() {
         <video
           autoPlay muted loop playsInline
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-          src="/assets/hero/hero-bg.mp4"
+          src={asset('/assets/hero/hero-bg.mp4')}
         />
         {/* 遮罩：整體暗化 */}
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.75)' }} />

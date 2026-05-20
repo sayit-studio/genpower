@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { asset } from '../../utils/asset'
 
 interface IntroAnimationProps {
   onComplete?: () => void
@@ -37,7 +38,7 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
               display: 'block',
             }}
           >
-            <source src="/assets/intro/intro-animation.mp4" type="video/mp4" />
+            <source src={asset('/assets/intro/intro-animation.mp4')} type="video/mp4" />
           </video>
         </motion.div>
       )}
