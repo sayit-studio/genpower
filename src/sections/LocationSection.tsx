@@ -159,7 +159,7 @@ export default function LocationSection() {
             }}
           >
             <a
-              href="/#/register"
+              href="/battle/#/register"
               style={{
                 display: 'block',
                 textAlign: 'center',

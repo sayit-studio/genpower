@@ -125,7 +125,7 @@ export default function VoteSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.75 }}
         >
-          <a href="/#/vote" className="vote-cta">
+          <a href="/battle/#/vote" className="vote-cta">
             立即投票
           </a>
         </motion.div>
