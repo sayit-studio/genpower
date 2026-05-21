@@ -312,11 +312,10 @@ export default function VotePage() {
 
   const fetchPlayers = useCallback(async (userId?: string) => {
     try {
-      const res = await fetch(VOTE_RESULTS_WEBHOOK, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'getResults', ...(userId ? { userId } : {}) }),
-      })
+      const url = new URL(VOTE_RESULTS_WEBHOOK)
+      url.searchParams.set('action', 'getResults')
+      if (userId) url.searchParams.set('userId', userId)
+      const res = await fetch(url.toString())
       if (!res.ok) return
 
       const data = await res.json() as
