@@ -138,7 +138,7 @@ function CustomCheckbox({ checked, onChange }: { checked: boolean; onChange: () 
   return (
     <button
       type="button"
-      onClick={onChange}
+      onClick={(e) => { e.stopPropagation(); onChange(); }}
       aria-checked={checked}
       role="checkbox"
       style={{
