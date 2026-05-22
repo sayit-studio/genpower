@@ -4,33 +4,128 @@ import { useMediaQuery } from '../hooks/useMediaQuery'
 import GradientText from '../components/reactbits/GradientText'
 import { asset } from '../utils/asset'
 
-const STAGES = [
+type ItemType = 'mission' | 'condition' | 'elimination'
+
+interface StageItem {
+  icon: string
+  label: string
+  text: string
+  type: ItemType
+}
+
+interface Stage {
+  id: number
+  code: string
+  name: string
+  imageDesktop: string
+  imageMobile: string
+  quote: string
+  description: string
+  items: StageItem[]
+}
+
+const STAGES: Stage[] = [
   {
+    id: 1,
     code: 'STAGE 01',
     name: '極速章魚燒',
     imageDesktop: asset('/assets/stages/stage-01-speed-desktop.png'),
     imageMobile: asset('/assets/stages/stage-01-speed-mobile.png'),
-    rules: `挑戰你的極速本能！在滾燙章魚燒出爐的瞬間，\n你必須比所有人更快將12顆送入口中——\n你來得及去注意其他人嗎？\n前18名晉級，慢一秒就出局！`,
+    quote: '滾燙出爐的 12 顆章魚燒，是美味還是考驗？在這裡，沒有細嚼慢嚥的空間！',
+    description:
+      '第一關拼的就是爆發力！面對剛出爐、內餡滾燙的黃金章魚燒，你必須克服高溫誘惑與恐懼。別管其他人吃到哪，用最快速度將盤面清空，搶下通往下一關的門票！',
+    items: [
+      { icon: '🎯', label: '闖關任務', text: '最快完食 12 顆原味章魚燒。', type: 'mission' },
+      {
+        icon: '⚖️',
+        label: '晉級條件',
+        text: '吞下最後一顆並「高舉你的手」，裁判確認盤面清空才算數。',
+        type: 'condition',
+      },
+      {
+        icon: '🏆',
+        label: '殘酷淘汰',
+        text: '僅取最快達成的前 18 名晉級，慢一秒只能明年再來！',
+        type: 'elimination',
+      },
+    ],
   },
   {
+    id: 2,
     code: 'STAGE 02',
     name: '極樂章魚燒',
     imageDesktop: asset('/assets/stages/stage-02-chaos-desktop.png'),
     imageMobile: asset('/assets/stages/stage-02-chaos-mobile.png'),
-    rules: `以為過關就能喘息？錯了。\n趣味障礙卡隨時登場打亂你的節奏，\n讓你在混亂中掙扎求生。\n完成3盒者方可晉級——你的意志力夠強嗎？`,
+    quote: '真正的地獄才剛開始！你以為吃得快就行？當「命運障礙卡」降臨，誰能笑到最後？',
+    description:
+      '成功晉級的 18 位勇者同場廝殺！這次要面對的是整整 3 盒的重磅考驗，且全程禁止常規飲水。更刺激的是，突如其來的「趣味障礙卡」將徹底打亂你的節奏！是抽到「解渴神飲」上天堂，還是命中「芥末地獄」辣到懷疑人生？',
+    items: [
+      {
+        icon: '🎯',
+        label: '闖關任務',
+        text: '限時內硬扛吃完 3 盒（36 顆）章魚燒。',
+        type: 'mission',
+      },
+      {
+        icon: '🔥',
+        label: '刺激變數',
+        text: '隨機觸發命運障礙！可能是地獄級的「芥末卡、冰火九重天、超級綜合口味」，或是幸運補給「漂浮可樂、奶茶卡」。',
+        type: 'condition',
+      },
+      {
+        icon: '🏆',
+        label: '殘酷淘汰',
+        text: '未能在時間內吃完 3 盒者，直接出局！',
+        type: 'elimination',
+      },
+    ],
   },
   {
+    id: 3,
     code: 'STAGE 03',
     name: '極限章魚燒',
     imageDesktop: asset('/assets/stages/stage-03-limit-desktop.jpg'),
     imageMobile: asset('/assets/stages/stage-03-limit-mobile.png'),
-    rules: `沒有終點，只有極限。\n無限補盤持續轟炸，吃得最多者奪冠稱霸。\n這一關考驗的不只是胃，\n而是你敢不敢突破自己以為的極限！`,
+    quote: '忘掉飽足感，這裡只有無止盡的章魚燒狂潮！挑戰你以為的極限。',
+    description:
+      '來到最終戰，沒有終點，只有無限補盤的持續轟炸！所有倖存的晉級者將展開最終肉搏，考驗的是絕對的胃容量與驚人意志力。撐開你的胃，盡情吞噬吧！',
+    items: [
+      {
+        icon: '🎯',
+        label: '闖關任務',
+        text: '章魚燒不間斷補給，時間內吃下最多顆！',
+        type: 'mission',
+      },
+      {
+        icon: '👑',
+        label: '終極決戰',
+        text: '結算時由裁判驗盤，盤數最多的前 3 名奪下大胃王霸主榮耀！（若盤數相同，則以最後一顆完食時間較早者勝出）',
+        type: 'elimination',
+      },
+    ],
   },
 ]
 
-function StageFlipCard({ stage, delay, isMobile }: { stage: typeof STAGES[0]; delay: number; isMobile: boolean }) {
-  const [isFlipped, setIsFlipped] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
+const ITEM_ACCENT: Record<ItemType, string> = {
+  mission: '#D4A017',
+  condition: 'rgba(255,255,255,0.6)',
+  elimination: '#E8590C',
+}
+
+function StageAccordionCard({
+  stage,
+  isOpen,
+  onToggle,
+  isMobile,
+  delay,
+}: {
+  stage: Stage
+  isOpen: boolean
+  onToggle: () => void
+  isMobile: boolean
+  delay: number
+}) {
+  const [hovered, setHovered] = useState(false)
   const imageSrc = isMobile ? stage.imageMobile : stage.imageDesktop
 
   return (
@@ -39,149 +134,139 @@ function StageFlipCard({ stage, delay, isMobile }: { stage: typeof STAGES[0]; de
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay }}
-      style={{
-        position: 'relative',
-        cursor: 'pointer',
-        perspective: '1000px',
-        aspectRatio: isMobile ? '3/4' : '4/3',
-      }}
-      onClick={() => setIsFlipped(f => !f)}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      style={{ display: 'flex', flexDirection: 'column' }}
     >
-      {/* 翻轉體 */}
+      {/* 圖片區塊 — 整張為點擊觸發 */}
       <div
+        onClick={onToggle}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         style={{
-          position: 'absolute',
-          inset: 0,
-          transformStyle: 'preserve-3d',
-          transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          cursor: 'pointer',
+          overflow: 'hidden',
+          lineHeight: 0,
         }}
       >
-        {/* 正面 */}
-        <div
+        <img
+          src={imageSrc}
+          alt={stage.name}
           style={{
-            position: 'absolute',
-            inset: 0,
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden',
-            overflow: 'hidden',
+            display: 'block',
+            width: '100%',
+            transition: 'transform 0.35s ease',
+            transform: hovered ? 'scale(1.02)' : 'scale(1)',
+          }}
+        />
+      </div>
+
+      {/* 箭頭指示條 — 置於文字區頂部，點擊亦可切換 */}
+      <div
+        onClick={onToggle}
+        style={{
+          cursor: 'pointer',
+          background: '#111',
+          textAlign: 'center',
+          padding: '10px 0 6px',
+          lineHeight: 1,
+        }}
+      >
+        <span
+          style={{
+            display: 'inline-block',
+            color: '#D4A017',
+            fontSize: '14px',
+            transition: 'transform 0.4s ease',
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
           }}
         >
-          <img
-            src={imageSrc}
-            alt={stage.name}
+          ▼
+        </span>
+      </div>
+
+      {/* 手風琴展開區 */}
+      <div
+        style={{
+          maxHeight: isOpen ? '900px' : '0',
+          overflow: 'hidden',
+          opacity: isOpen ? 1 : 0,
+          transition: 'max-height 0.4s ease, opacity 0.4s ease',
+          background: '#111',
+        }}
+      >
+        <div style={{ padding: '20px 20px 28px' }}>
+          {/* 引言金句 */}
+          <p
             style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-          />
-          {/* hover 提示 */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: '16px',
-              background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
-              opacity: isHovered ? 1 : 0,
-              transition: 'opacity 0.3s',
-              textAlign: 'center',
-              pointerEvents: 'none',
+              fontFamily: "'Noto Serif TC', serif",
+              fontSize: isMobile ? '14px' : '15px',
+              fontStyle: 'italic',
+              color: '#D4A017',
+              lineHeight: 1.8,
+              margin: '0 0 18px',
+              borderLeft: '3px solid #D4A017',
+              paddingLeft: '14px',
             }}
           >
-            <span
-              style={{
-                fontFamily: "'Noto Sans TC', sans-serif",
-                fontSize: '12px',
-                color: 'rgba(255,255,255,0.6)',
-              }}
-            >
-              點擊查看規則
-            </span>
-          </div>
-        </div>
+            「{stage.quote}」
+          </p>
 
-        {/* 背面 */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-            background: '#0D0D0D',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: isMobile ? '32px 24px' : '40px 32px',
-            textAlign: 'center',
-          }}
-        >
+          {/* 說明文字 */}
           <p
             style={{
               fontFamily: "'Noto Sans TC', sans-serif",
-              fontSize: '11px',
-              letterSpacing: '6px',
-              color: '#CC1200',
+              fontSize: isMobile ? '13px' : '14px',
+              color: '#e0e0e0',
+              lineHeight: 1.8,
               margin: '0 0 20px',
             }}
           >
-            {stage.code}
+            {stage.description}
           </p>
-          <h3
-            style={{
-              fontFamily: "'Noto Serif TC', serif",
-              fontWeight: 900,
-              fontSize: 'clamp(24px, 3vw, 36px)',
-              color: '#FFFFFF',
-              letterSpacing: '3px',
-              margin: '0 0 24px',
-            }}
-          >
-            {stage.name}
-          </h3>
-          {/* 裝飾線 */}
+
+          {/* 任務細項 */}
           <div
             style={{
-              width: '40px',
-              height: '1px',
-              background: 'linear-gradient(90deg, transparent, #D4A017, transparent)',
-              margin: '0 auto 24px',
-              flexShrink: 0,
-            }}
-          />
-          <p
-            style={{
-              fontFamily: "'Noto Sans TC', sans-serif",
-              fontWeight: 400,
-              fontSize: isMobile ? '13px' : 'clamp(13px, 1.5vw, 15px)',
-              color: 'rgba(255,255,255,0.75)',
-              lineHeight: 2,
-              letterSpacing: '0.5px',
-              whiteSpace: 'pre-line',
-              margin: 0,
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : `repeat(${stage.items.length}, 1fr)`,
+              gap: '12px',
             }}
           >
-            {stage.rules}
-          </p>
-          <p
-            style={{
-              marginTop: '32px',
-              marginBottom: 0,
-              fontSize: '11px',
-              color: 'rgba(255,255,255,0.3)',
-              fontFamily: "'Noto Sans TC', sans-serif",
-            }}
-          >
-            點擊返回
-          </p>
+            {stage.items.map((item) => (
+              <div
+                key={item.label}
+                style={{
+                  background: '#1a1a1a',
+                  borderRadius: '6px',
+                  padding: '14px 16px',
+                  borderTop: `3px solid ${ITEM_ACCENT[item.type]}`,
+                }}
+              >
+                <p
+                  style={{
+                    margin: '0 0 6px',
+                    fontFamily: "'Noto Sans TC', sans-serif",
+                    fontSize: '11px',
+                    letterSpacing: '2px',
+                    color: ITEM_ACCENT[item.type],
+                    fontWeight: 700,
+                  }}
+                >
+                  {item.icon} {item.label}
+                </p>
+                <p
+                  style={{
+                    margin: 0,
+                    fontFamily: "'Noto Sans TC', sans-serif",
+                    fontSize: '13px',
+                    color: '#e0e0e0',
+                    lineHeight: 1.8,
+                  }}
+                >
+                  {item.text}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </motion.div>
@@ -190,6 +275,25 @@ function StageFlipCard({ stage, delay, isMobile }: { stage: typeof STAGES[0]; de
 
 export default function StagesSection() {
   const isMobile = useMediaQuery('(max-width: 768px)')
+  // desktop: Set<id>；mobile: number | null（單張展開）
+  const [openDesktop, setOpenDesktop] = useState<Set<number>>(new Set())
+  const [openMobile, setOpenMobile] = useState<number | null>(null)
+
+  function handleToggle(id: number) {
+    if (isMobile) {
+      setOpenMobile((prev) => (prev === id ? null : id))
+    } else {
+      setOpenDesktop((prev) => {
+        const next = new Set(prev)
+        next.has(id) ? next.delete(id) : next.add(id)
+        return next
+      })
+    }
+  }
+
+  function isOpen(id: number) {
+    return isMobile ? openMobile === id : openDesktop.has(id)
+  }
 
   return (
     <section id="stages" style={{ padding: '120px 24px', background: 'transparent' }}>
@@ -226,10 +330,18 @@ export default function StagesSection() {
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr',
             gap: '24px',
+            alignItems: 'start',
           }}
         >
           {STAGES.map((stage, idx) => (
-            <StageFlipCard key={stage.code} stage={stage} delay={idx * 0.15} isMobile={isMobile} />
+            <StageAccordionCard
+              key={stage.id}
+              stage={stage}
+              isOpen={isOpen(stage.id)}
+              onToggle={() => handleToggle(stage.id)}
+              isMobile={isMobile}
+              delay={idx * 0.15}
+            />
           ))}
         </div>
       </div>
