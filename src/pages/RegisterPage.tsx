@@ -22,39 +22,71 @@ const ACCORDIONS = [
   { title: '風險須知', content: '本活動為飲食挑戰，參賽者需充分了解相關健康風險並自願參加。有相關病史者請謹慎評估。' },
 ]
 
+const PHONE_RE = /^09\d{8}$/
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function normalizePhone(v: string) {
+  return v.replace(/[-\s]/g, '')
+}
+
 export default function RegisterPage() {
   const [form, setForm] = useState({
     name: '', line_name: '', gender: '', birthday: '', phone: '', email: '',
     emergency_name: '', emergency_phone: '', agree: false,
   })
-  const [errors, setErrors] = useState<Record<string, boolean>>({})
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const [shake, setShake] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [openAccordion, setOpenAccordion] = useState<number | null>(null)
   const formRef = useRef<HTMLFormElement>(null)
 
   const validate = () => {
-    const e: Record<string, boolean> = {}
-    if (!form.name.trim()) e.name = true
-    if (!form.line_name.trim()) e.line_name = true
-    if (!form.gender) e.gender = true
-    if (!form.birthday) e.birthday = true
-    if (!form.phone.trim()) e.phone = true
-    if (!form.email.trim()) e.email = true
-    if (!form.emergency_name.trim()) e.emergency_name = true
-    if (!form.emergency_phone.trim()) e.emergency_phone = true
-    if (!form.agree) e.agree = true
+    const e: Record<string, string> = {}
+    if (!form.name.trim()) e.name = '請輸入姓名'
+    if (!form.line_name.trim()) e.line_name = '請輸入 LINE 名稱'
+    if (!form.gender) e.gender = '請選擇性別'
+    if (!form.birthday) e.birthday = '請選擇生日'
+
+    if (!form.phone.trim()) {
+      e.phone = '請輸入聯絡電話'
+    } else if (!PHONE_RE.test(normalizePhone(form.phone))) {
+      e.phone = '格式不正確，請輸入 09 開頭 10 位數字'
+    }
+
+    if (!form.email.trim()) {
+      e.email = '請輸入 Email'
+    } else if (!EMAIL_RE.test(form.email.trim())) {
+      e.email = 'Email 格式不正確'
+    }
+
+    if (!form.emergency_name.trim()) e.emergency_name = '請輸入緊急聯絡人姓名'
+    if (!form.emergency_phone.trim()) {
+      e.emergency_phone = '請輸入緊急聯絡人電話'
+    } else if (!PHONE_RE.test(normalizePhone(form.emergency_phone))) {
+      e.emergency_phone = '格式不正確，請輸入 09 開頭 10 位數字'
+    }
+
+    if (!form.agree) e.agree = '請同意以上事項'
     return e
   }
 
+  const clearError = (field: string) =>
+    setErrors(er => { const n = { ...er }; delete n[field]; return n })
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitError('')
     const errs = validate()
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
       setShake(true)
       setTimeout(() => setShake(false), 600)
+      // scroll to first error field
+      const firstKey = Object.keys(errs)[0]
+      const el = formRef.current?.querySelector(`[data-field="${firstKey}"]`) as HTMLElement | null
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       return
     }
     setSubmitting(true)
@@ -65,7 +97,9 @@ export default function RegisterPage() {
         source: 'website-register',
       })
       setSuccess(true)
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '送出失敗，請稍後再試'
+      setSubmitError(msg)
       setShake(true)
       setTimeout(() => setShake(false), 600)
     } finally {
@@ -73,12 +107,13 @@ export default function RegisterPage() {
     }
   }
 
+  const hasErr = (field: string) => !!errors[field]
   const inputClass = (field: string) =>
     `w-full px-4 py-3 text-white text-sm outline-none transition-all placeholder:text-white/35 ${
-      errors[field] ? 'bg-brand-red/8' : 'bg-white/4 focus:bg-white/7'
+      hasErr(field) ? 'bg-brand-red/8' : 'bg-white/4 focus:bg-white/7'
     }`
   const inputStyle = (field: string): React.CSSProperties => ({
-    borderBottom: errors[field]
+    borderBottom: hasErr(field)
       ? '1px solid #CC1200'
       : '1px solid rgba(255,255,255,0.12)',
   })
@@ -208,76 +243,84 @@ export default function RegisterPage() {
           <h3 className="font-bold text-white text-xl">✦ 報名表單</h3>
 
           <div className="grid md:grid-cols-2 gap-4">
-            <div>
+            <div data-field="name">
               <label className="text-white/60 text-xs mb-1 block">姓名 *</label>
               <input type="text" className={inputClass('name')} style={inputStyle('name')} value={form.name}
-                onChange={e => { setForm(f => ({ ...f, name: e.target.value })); setErrors(er => ({ ...er, name: false })) }}
+                onChange={e => { setForm(f => ({ ...f, name: e.target.value })); clearError('name') }}
                 placeholder="請輸入真實姓名" />
+              {errors.name && <p className="text-xs mt-1" style={{ color: '#CC1200' }}>{errors.name}</p>}
             </div>
-            <div>
+            <div data-field="line_name">
               <label className="text-white/60 text-xs mb-1 block">LINE 名稱 *</label>
               <input type="text" className={inputClass('line_name')} style={inputStyle('line_name')} value={form.line_name}
-                onChange={e => { setForm(f => ({ ...f, line_name: e.target.value })); setErrors(er => ({ ...er, line_name: false })) }}
+                onChange={e => { setForm(f => ({ ...f, line_name: e.target.value })); clearError('line_name') }}
                 placeholder="請輸入 LINE 顯示名稱" />
+              {errors.line_name && <p className="text-xs mt-1" style={{ color: '#CC1200' }}>{errors.line_name}</p>}
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            <div>
+            <div data-field="gender">
               <label className="text-white/60 text-xs mb-1 block">性別 *</label>
               <div className="flex gap-3">
                 {GENDERS.map(g => (
                   <label key={g}
                     className={`flex-1 text-center py-3 cursor-pointer text-sm transition-all ${form.gender === g ? 'bg-brand-red/15 text-white' : 'text-white/60 hover:text-white/80'}`}
-                    style={{ boxShadow: form.gender === g ? 'inset 0 -2px 0 #CC1200' : 'inset 0 -1px 0 rgba(255,255,255,0.1)' }}
+                    style={{ boxShadow: form.gender === g ? 'inset 0 -2px 0 #CC1200' : hasErr('gender') ? 'inset 0 -1px 0 #CC1200' : 'inset 0 -1px 0 rgba(255,255,255,0.1)' }}
                   >
                     <input type="radio" name="gender" value={g} className="sr-only"
-                      onChange={() => { setForm(f => ({ ...f, gender: g })); setErrors(er => ({ ...er, gender: false })) }} />
+                      onChange={() => { setForm(f => ({ ...f, gender: g })); clearError('gender') }} />
                     {g}
                   </label>
                 ))}
               </div>
+              {errors.gender && <p className="text-xs mt-1" style={{ color: '#CC1200' }}>{errors.gender}</p>}
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            <div>
+            <div data-field="birthday">
               <label className="text-white/60 text-xs mb-1 block">生日 *</label>
               <input type="date" className={inputClass('birthday')} style={inputStyle('birthday')} value={form.birthday}
-                onChange={e => { setForm(f => ({ ...f, birthday: e.target.value })); setErrors(er => ({ ...er, birthday: false })) }} />
+                onChange={e => { setForm(f => ({ ...f, birthday: e.target.value })); clearError('birthday') }} />
+              {errors.birthday && <p className="text-xs mt-1" style={{ color: '#CC1200' }}>{errors.birthday}</p>}
             </div>
-            <div>
+            <div data-field="phone">
               <label className="text-white/60 text-xs mb-1 block">聯絡電話 *</label>
               <input type="tel" className={inputClass('phone')} style={inputStyle('phone')} value={form.phone}
-                onChange={e => { setForm(f => ({ ...f, phone: e.target.value })); setErrors(er => ({ ...er, phone: false })) }}
-                placeholder="0912-345-678" />
+                onChange={e => { setForm(f => ({ ...f, phone: e.target.value })); clearError('phone') }}
+                placeholder="0912345678" />
+              {errors.phone && <p className="text-xs mt-1" style={{ color: '#CC1200' }}>{errors.phone}</p>}
             </div>
           </div>
 
-          <div>
+          <div data-field="email">
             <label className="text-white/60 text-xs mb-1 block">Email *</label>
             <input type="email" className={inputClass('email')} style={inputStyle('email')} value={form.email}
-              onChange={e => { setForm(f => ({ ...f, email: e.target.value })); setErrors(er => ({ ...er, email: false })) }}
+              onChange={e => { setForm(f => ({ ...f, email: e.target.value })); clearError('email') }}
               placeholder="your@email.com" />
+            {errors.email && <p className="text-xs mt-1" style={{ color: '#CC1200' }}>{errors.email}</p>}
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            <div>
+            <div data-field="emergency_name">
               <label className="text-white/60 text-xs mb-1 block">緊急聯絡人姓名 *</label>
               <input type="text" className={inputClass('emergency_name')} style={inputStyle('emergency_name')} value={form.emergency_name}
-                onChange={e => { setForm(f => ({ ...f, emergency_name: e.target.value })); setErrors(er => ({ ...er, emergency_name: false })) }}
+                onChange={e => { setForm(f => ({ ...f, emergency_name: e.target.value })); clearError('emergency_name') }}
                 placeholder="緊急聯絡人" />
+              {errors.emergency_name && <p className="text-xs mt-1" style={{ color: '#CC1200' }}>{errors.emergency_name}</p>}
             </div>
-            <div>
+            <div data-field="emergency_phone">
               <label className="text-white/60 text-xs mb-1 block">緊急聯絡人電話 *</label>
               <input type="tel" className={inputClass('emergency_phone')} style={inputStyle('emergency_phone')} value={form.emergency_phone}
-                onChange={e => { setForm(f => ({ ...f, emergency_phone: e.target.value })); setErrors(er => ({ ...er, emergency_phone: false })) }}
-                placeholder="0912-345-678" />
+                onChange={e => { setForm(f => ({ ...f, emergency_phone: e.target.value })); clearError('emergency_phone') }}
+                placeholder="0912345678" />
+              {errors.emergency_phone && <p className="text-xs mt-1" style={{ color: '#CC1200' }}>{errors.emergency_phone}</p>}
             </div>
           </div>
 
           {/* Declaration */}
-          <div className="p-5" style={{ boxShadow: errors.agree ? 'inset 0 -2px 0 #CC1200, 0 2px 30px rgba(204,18,0,0.08)' : 'inset 0 -1px 0 rgba(255,255,255,0.08), 0 2px 30px rgba(0,0,0,0.3)', background: 'rgba(255,255,255,0.02)' }}>
+          <div data-field="agree" className="p-5" style={{ boxShadow: hasErr('agree') ? 'inset 0 -2px 0 #CC1200, 0 2px 30px rgba(204,18,0,0.08)' : 'inset 0 -1px 0 rgba(255,255,255,0.08), 0 2px 30px rgba(0,0,0,0.3)', background: 'rgba(255,255,255,0.02)' }}>
             <h4 className="text-white font-bold text-sm mb-4">本人已詳閱並同意以下事項：</h4>
             <ul className="flex flex-col gap-2">
               {DECLARATIONS.map((d, i) => (
@@ -297,7 +340,7 @@ export default function RegisterPage() {
               <div
                 className={`w-5 h-5 flex items-center justify-center transition-all cursor-pointer ${form.agree ? 'bg-brand-red' : 'bg-white/8'}`}
                 style={{ boxShadow: form.agree ? '0 0 12px rgba(204,18,0,0.4)' : 'inset 0 0 0 1px rgba(255,255,255,0.25)' }}
-                onClick={() => { setForm(f => ({ ...f, agree: !f.agree })); setErrors(er => ({ ...er, agree: false })) }}
+                onClick={() => { setForm(f => ({ ...f, agree: !f.agree })); clearError('agree') }}
               >
                 {form.agree && (
                   <motion.svg initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.3 }}
@@ -307,10 +350,18 @@ export default function RegisterPage() {
                 )}
               </div>
               <input type="checkbox" className="sr-only" checked={form.agree}
-                onChange={() => { setForm(f => ({ ...f, agree: !f.agree })); setErrors(er => ({ ...er, agree: false })) }} />
+                onChange={() => { setForm(f => ({ ...f, agree: !f.agree })); clearError('agree') }} />
               <span className="text-sm text-white/70">我已閱讀並同意以上所有事項</span>
             </label>
+            {errors.agree && <p className="text-xs mt-2" style={{ color: '#CC1200' }}>{errors.agree}</p>}
           </div>
+
+          {/* 送出失敗訊息 */}
+          {submitError && (
+            <div className="px-4 py-3 text-sm text-center" style={{ background: 'rgba(204,18,0,0.1)', border: '1px solid rgba(204,18,0,0.3)', color: '#CC1200' }}>
+              {submitError}
+            </div>
+          )}
 
           <motion.button
             type="submit"

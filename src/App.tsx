@@ -6,6 +6,7 @@ import Particles from './components/reactbits/Particles'
 import PrivacyBanner from './components/ui/PrivacyBanner'
 import HomePage from './pages/HomePage'
 import VotePage from './pages/VotePage'
+import RegisterPage from './pages/RegisterPage'
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -17,6 +18,7 @@ function AnimatedRoutes() {
         <Routes location={location}>
           <Route path="/" element={<HomePage />} />
           <Route path="/vote" element={<VotePage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </motion.div>
     </AnimatePresence>
