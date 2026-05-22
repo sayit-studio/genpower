@@ -1,0 +1,115 @@
+{
+  "name": "章魚大胃王_報名入庫",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "genpower-register",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-register",
+      "name": "報名 Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": "365b3ad1d1cd80f69c0de6b0f6715503",
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "notion-count",
+      "name": "查詢現有報名數",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.length }}",
+              "operation": "smaller",
+              "value2": 50
+            }
+          ]
+        }
+      },
+      "id": "if-capacity",
+      "name": "名額未滿?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "365b3ad1d1cd80f69c0de6b0f6715503",
+        "title": "={{ 'GP' + $now.format('yyMMdd') + '-' + ($node[\"查詢現有報名數\"].json.length + 1).toString().padStart(3,'0') }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "姓名|rich_text",
+              "textContent": "={{ $node[\"報名 Webhook\"].json.body.name }}"
+            },
+            {
+              "key": "電話|phone_number",
+              "phoneValue": "={{ $node[\"報名 Webhook\"].json.body.phone }}"
+            },
+            {
+              "key": "審核狀態|select",
+              "selectValue": "待審核"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "notion-create",
+      "name": "寫入 Notion 報名",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [900, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"registrationId\": $node[\"寫入 Notion 報名\"].json.property_報名編號 || $node[\"寫入 Notion 報名\"].json.name } }}"
+      },
+      "id": "respond-ok",
+      "name": "回傳成功",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 409,
+        "responseBody": "={{ { \"success\": false, \"message\": \"報名已額滿\" } }}"
+      },
+      "id": "respond-full",
+      "name": "回傳額滿",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 420]
+    }
+  ],
+  "connections": {
+    "報名 Webhook": { "main": [[{ "node": "查詢現有報名數", "type": "main", "index": 0 }]] },
+    "查詢現有報名數": { "main": [[{ "node": "名額未滿?", "type": "main", "index": 0 }]] },
+    "名額未滿?": {
+      "main": [
+        [{ "node": "寫入 Notion 報名", "type": "main", "index": 0 }],
+        [{ "node": "回傳額滿", "type": "main", "index": 0 }]
+      ]
+    },
+    "寫入 Notion 報名": { "main": [[{ "node": "回傳成功", "type": "main", "index": 0 }]] }
+  },
+  "settings": {}
+}

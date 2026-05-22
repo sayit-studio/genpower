@@ -4,3 +4,15 @@
 !.dev.vars.example
 .env*
 !.env.example
+node_modules
+
+# build output
+dist/
+
+# logs
+*.log
+response.txt
+
+# claude code
+.claude/
+claude-code-prompt.md
