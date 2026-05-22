@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { motion, useAnimation } from 'framer-motion'
 import GradientText from '../components/reactbits/GradientText'
 import { submitRegistration } from '../services/registerService'
@@ -169,6 +169,8 @@ function CustomCheckbox({ checked, onChange }: { checked: boolean; onChange: () 
 function RegisterForm() {
   const [form, setForm] = useState<FormData>(INITIAL_FORM)
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
   const btnControls = useAnimation()
   const birthdayRef = useRef<HTMLInputElement>(null)
 
@@ -183,17 +185,24 @@ function RegisterForm() {
     form.emergencyPhone.trim() !== '' &&
     form.agreed
 
+  const shake = useCallback(async () => {
+    await btnControls.start({
+      x: [0, -10, 10, -10, 10, -6, 6, 0],
+      transition: { duration: 0.4 },
+    })
+  }, [btnControls])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrorMsg('')
+
     if (!requiredFilled) {
-      // shake 動畫
-      await btnControls.start({
-        x: [0, -10, 10, -10, 10, -6, 6, 0],
-        transition: { duration: 0.4 },
-      })
+      setErrorMsg('請填寫所有必填欄位並勾選同意聲明')
+      await shake()
       return
     }
 
+    setLoading(true)
     try {
       await submitRegistration({
         name: form.name,
@@ -208,16 +217,14 @@ function RegisterForm() {
         pageUrl: window.location.href,
         source: 'website-register',
       })
+      setSubmitted(true)
     } catch (error) {
       console.warn(error)
-      await btnControls.start({
-        x: [0, -10, 10, -10, 10, -6, 6, 0],
-        transition: { duration: 0.4 },
-      })
-      return
+      setErrorMsg('送出失敗，請稍後再試')
+      await shake()
+    } finally {
+      setLoading(false)
     }
-
-    setSubmitted(true)
   }
 
   const set = (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -439,29 +446,45 @@ function RegisterForm() {
             </p>
           </div>
 
+          {/* 錯誤提示 */}
+          {errorMsg && (
+            <p style={{
+              fontFamily: "'Noto Sans TC', sans-serif",
+              fontSize: '13px',
+              color: '#FF6B6B',
+              margin: '0',
+              letterSpacing: '1px',
+            }}>
+              ⚠ {errorMsg}
+            </p>
+          )}
+
           {/* 送出按鈕 */}
           <motion.button
             type="submit"
             animate={btnControls}
+            disabled={loading}
             style={{
-              marginTop: '24px',
+              marginTop: '8px',
               width: '100%',
-              background: 'linear-gradient(135deg, #FF6B00 0%, #CC1200 50%, #8B0000 100%)',
-              color: '#FFFFFF',
+              background: loading
+                ? 'rgba(255,255,255,0.1)'
+                : 'linear-gradient(135deg, #FF6B00 0%, #CC1200 50%, #8B0000 100%)',
+              color: loading ? 'rgba(255,255,255,0.4)' : '#FFFFFF',
               fontFamily: "'Noto Serif TC', serif",
               fontWeight: 700,
               fontSize: '16px',
               padding: '16px',
               borderRadius: '4px',
               border: 'none',
-              boxShadow: '0 2px 20px rgba(204,18,0,0.4)',
-              cursor: 'pointer',
+              boxShadow: loading ? 'none' : '0 2px 20px rgba(204,18,0,0.4)',
+              cursor: loading ? 'not-allowed' : 'pointer',
               letterSpacing: '2px',
-              transition: 'filter 0.2s ease',
+              transition: 'all 0.2s ease',
             }}
-            whileHover={{ filter: 'brightness(1.15)' }}
+            whileHover={loading ? {} : { filter: 'brightness(1.15)' }}
           >
-            送出報名
+            {loading ? '送出中…' : '送出報名'}
           </motion.button>
 
         </div>

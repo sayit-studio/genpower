@@ -159,7 +159,11 @@ export default function LocationSection() {
             }}
           >
             <a
-              href="/battle/#/register"
+              href="#process"
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById('process')?.scrollIntoView({ behavior: 'smooth' })
+              }}
               style={{
                 display: 'block',
                 textAlign: 'center',

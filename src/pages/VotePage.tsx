@@ -198,8 +198,8 @@ function PlayerCard({ player, index, rank, hasVoted, votedTarget, isExpired, loa
         flexDirection: 'column',
       }}
     >
-      {/* 照片區 70% */}
-      <div style={{ position: 'relative', flex: '0 0 70%', overflow: 'hidden' }}>
+      {/* 照片區：彈性填滿剩餘空間，讓資訊區＋按鈕得以顯示 */}
+      <div style={{ position: 'relative', flex: '1 1 auto', overflow: 'hidden', minHeight: 0 }}>
         {player.photoUrl ? (
           <img
             src={player.photoUrl}
@@ -237,8 +237,8 @@ function PlayerCard({ player, index, rank, hasVoted, votedTarget, isExpired, loa
 
       {/* 資訊區 30% */}
       <div style={{
-        flex: '0 0 30%',
-        padding: '12px 12px 0',
+        flex: '0 0 auto',
+        padding: '10px 12px 8px',
         background: 'rgba(0,0,0,0.3)',
         display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
       }}>
