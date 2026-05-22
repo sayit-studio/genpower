@@ -419,10 +419,15 @@ export default function VotePage() {
       if (data.success) {
         setHasVoted(true)
         setVotedTarget(player.name)
+        // 樂觀更新：立即在前端 +1，背景靜默同步 Notion 實際票數
+        setPlayers(prev => prev.map(p =>
+          p.id === player.id ? { ...p, votes: p.votes + 1 } : p
+        ))
         setExplosion(true)
         setTimeout(() => setExplosion(false), 2500)
         pushToast('投票成功！抽獎資格已取得', 'success')
-        await fetchPlayers(lineUser.userId)
+        // 背景更新不 await，避免 UI 卡頓
+        fetchPlayers(lineUser.userId)
       } else {
         pushToast(data.message ?? '投票失敗，請重試', 'error')
       }
