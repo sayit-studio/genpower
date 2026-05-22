@@ -221,8 +221,13 @@ function PlayerCard({ player, index, rank, hasVoted, votedTarget, isExpired, loa
         {/* 選手編號（左上） */}
         <div style={{
           position: 'absolute', top: 8, left: 8,
-          fontFamily: "'Noto Sans TC', sans-serif",
-          fontSize: 11, color: 'rgba(212,160,23,0.7)', letterSpacing: 1,
+          fontFamily: "'Noto Serif TC', serif",
+          fontWeight: 900,
+          fontSize: 20,
+          color: '#D4A017',
+          letterSpacing: 1,
+          lineHeight: 1,
+          textShadow: '0 0 8px rgba(212,160,23,0.8), 0 0 20px rgba(212,160,23,0.4)',
         }}>
           {String(player.number).padStart(2, '0')}
         </div>
