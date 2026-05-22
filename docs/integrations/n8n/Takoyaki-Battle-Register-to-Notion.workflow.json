@@ -1,0 +1,261 @@
+{
+  "name": "Takoyaki Battle - Register to Notion",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "takoyaki-register",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "0d31d6c5-2fb1-4f53-9904-6c7fa7166c85",
+      "name": "Register Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -780,
+        0
+      ],
+      "webhookId": "takoyaki-register"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst required = ['name', 'line_name', 'gender', 'birthday', 'phone', 'email', 'emergency_name', 'emergency_phone'];\nconst missing = required.filter((key) => !String(body[key] ?? '').trim());\nconst gender = String(body.gender ?? '').trim() === '不公開' ? '其他' : String(body.gender ?? '').trim();\n\nif (missing.length > 0 || body.agree !== true) {\n  return [{\n    json: {\n      valid: false,\n      statusCode: missing.length > 0 ? 400 : 403,\n      message: missing.length > 0\n        ? `Missing required fields: ${missing.join(', ')}`\n        : 'Terms must be agreed',\n    },\n  }];\n}\n\nreturn [{\n  json: {\n    valid: true,\n    payload: {\n      name: String(body.name).trim(),\n      line_name: String(body.line_name).trim(),\n      gender,\n      birthday: String(body.birthday).trim(),\n      phone: String(body.phone).trim(),\n      email: String(body.email).trim(),\n      emergency_name: String(body.emergency_name).trim(),\n      emergency_phone: String(body.emergency_phone).trim(),\n      agree: true,\n      pageUrl: String(body.pageUrl ?? '').trim(),\n      source: String(body.source ?? 'website-register').trim(),\n      timestamp: body.timestamp || new Date().toISOString(),\n    },\n  },\n}];"
+      },
+      "id": "383c3608-6f69-4c6e-b21d-88fa25875064",
+      "name": "Validate Registration",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "5b91a4df-a4ed-4e2b-9b28-30b4dd155dd2",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "967e70da-85e3-435b-a7a5-220d766fa5ed",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -340,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "value": "365b3ad1d1cd80f69c0de6b0f6715503",
+          "mode": "id"
+        },
+        "title": "={{ $json.payload.name }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "LINE 名稱|rich_text",
+              "textContent": "={{ $json.payload.line_name }}"
+            },
+            {
+              "key": "性別|select",
+              "selectValue": "={{ $json.payload.gender }}"
+            },
+            {
+              "key": "生日|date",
+              "date": "={{ $json.payload.birthday }}"
+            },
+            {
+              "key": "電話|phone_number",
+              "phoneValue": "={{ $json.payload.phone }}"
+            },
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json.payload.email }}"
+            },
+            {
+              "key": "緊急聯絡人|rich_text",
+              "textContent": "={{ $json.payload.emergency_name }}"
+            },
+            {
+              "key": "緊急聯絡人電話|phone_number",
+              "phoneValue": "={{ $json.payload.emergency_phone }}"
+            },
+            {
+              "key": "同意條款|checkbox",
+              "checkboxValue": "={{ $json.payload.agree }}"
+            },
+            {
+              "key": "狀態|select",
+              "selectValue": "待審核"
+            },
+            {
+              "key": "來源|select",
+              "selectValue": "={{ $json.payload.source }}"
+            },
+            {
+              "key": "頁面網址|url",
+              "urlValue": "={{ $json.payload.pageUrl }}"
+            },
+            {
+              "key": "送出時間|date",
+              "date": "={{ $json.payload.timestamp }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f6a93450-036b-453c-b178-c73736c72bda",
+      "name": "Create Registration in Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        -100
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"ok\": true,\n  \"message\": \"registration saved\"\n}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "f2990585-1073-43ac-b0e4-d9e70c51ce8b",
+      "name": "Respond Registration Saved",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        180,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, message: $json.message } }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode }}",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "e1a34a94-a77e-4b93-9319-f215d385568c",
+      "name": "Respond Invalid Registration",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        140
+      ]
+    }
+  ],
+  "connections": {
+    "Register Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Registration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Registration": {
+      "main": [
+        [
+          {
+            "node": "Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          {
+            "node": "Create Registration in Notion",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Invalid Registration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Registration in Notion": {
+      "main": [
+        [
+          {
+            "node": "Respond Registration Saved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-19T00:00:00.000Z",
+  "versionId": "c89548cb-3ed9-4140-a674-bff2137a6236"
+}

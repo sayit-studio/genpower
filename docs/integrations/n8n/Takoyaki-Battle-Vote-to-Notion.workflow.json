@@ -1,0 +1,272 @@
+{
+  "name": "Takoyaki Battle - Vote to Notion",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "takoyaki-vote",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "a197941f-e811-42b2-b8d4-04677fa2aff6",
+      "name": "Vote Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-1180, 0],
+      "webhookId": "takoyaki-vote"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst userId = String(body.userId ?? '').trim();\nconst targetPlayerId = String(body.targetPlayerId ?? '').trim();\n\nif (!userId || !targetPlayerId) {\n  return [{\n    json: {\n      valid: false,\n      statusCode: 400,\n      message: 'Missing userId or targetPlayerId',\n    },\n  }];\n}\n\nreturn [{\n  json: {\n    valid: true,\n    payload: {\n      userId,\n      displayName: String(body.displayName ?? '').trim(),\n      pictureUrl: String(body.pictureUrl ?? '').trim(),\n      targetPlayerId,\n      votedAt: body.votedAt || new Date().toISOString(),\n    },\n  },\n}];"
+      },
+      "id": "245eb171-cd73-4b86-a1bb-f8fc6efa0194",
+      "name": "Validate Vote",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-940, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "5c04bfd9-dafd-48c1-9feb-2efdb7aef94c",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cfaec306-3846-463c-9122-01afc22b3c20",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-700, 0]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "365b3ad1d1cd80e9812cd6c84946407a",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "c78e5599-d30f-4fc7-b5db-e1f2c1e0f28d",
+      "name": "Get Existing Votes",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [-440, -120],
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionApi": {
+          "id": "",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $('Validate Vote').first().json.payload;\nconst items = $input.all();\n\nfunction plainText(parts = []) {\n  return parts.map((part) => part.plain_text ?? part.text?.content ?? '').join('').trim();\n}\n\nfunction readNotionProperty(prop) {\n  if (!prop) return '';\n  if (typeof prop === 'string' || typeof prop === 'number' || typeof prop === 'boolean') return String(prop).trim();\n  if (prop.type === 'title') return plainText(prop.title);\n  if (prop.type === 'rich_text') return plainText(prop.rich_text);\n  if (prop.type === 'select') return String(prop.select?.name ?? '').trim();\n  if (prop.type === 'number') return prop.number == null ? '' : String(prop.number).trim();\n  return '';\n}\n\nfunction readUserId(json) {\n  if (!json) return '';\n  if (json['LINE User ID']) return readNotionProperty(json['LINE User ID']);\n  if (json.properties?.['LINE User ID']) return readNotionProperty(json.properties['LINE User ID']);\n  if (json.name) return String(json.name).trim();\n  return '';\n}\n\nconst alreadyVoted = items.some((item) => readUserId(item.json) === payload.userId);\n\nreturn [{\n  json: {\n    alreadyVoted,\n    payload,\n  },\n}];"
+      },
+      "id": "ef5a7e89-0b3c-4ab4-a6ff-4ec4a1df0cf1",
+      "name": "Check Existing Vote",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-200, -120]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "53d5d101-22ed-4ab3-91e2-b6917eaab0d7",
+              "leftValue": "={{ $json.alreadyVoted }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5adcb781-e55f-4b05-abf7-23b1d36d5f81",
+      "name": "Already Voted?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [40, -120]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: false, message: '已投票' } }}",
+        "options": {
+          "responseCode": 409,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "77169a6e-25ca-4d35-8844-b08cdcf7aa9c",
+      "name": "Respond Already Voted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [300, -260]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "value": "365b3ad1d1cd80e9812cd6c84946407a",
+          "mode": "id"
+        },
+        "title": "={{ $json.payload.userId }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "LINE名稱|rich_text",
+              "textContent": "={{ $json.payload.displayName || 'LINE User' }}"
+            },
+            {
+              "key": "LINE大頭貼|url",
+              "urlValue": "={{ $json.payload.pictureUrl || null }}"
+            },
+            {
+              "key": "投票對象|select",
+              "selectValue": "={{ $json.payload.targetPlayerId }}"
+            },
+            {
+              "key": "投票時間|date",
+              "date": "={{ $json.payload.votedAt }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b601b762-6983-4f53-bf0d-7bf91d7c27ec",
+      "name": "Create Vote in Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [300, -40],
+      "credentials": {
+        "notionApi": {
+          "id": "",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true } }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "e5e9bba4-0b9f-496b-8045-434ae01c8f32",
+      "name": "Respond Vote Saved",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [560, -40]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: false, message: $json.message } }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode }}",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "876e40e8-f24e-4820-9550-29b19b68eb81",
+      "name": "Respond Invalid Vote",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [-440, 140]
+    }
+  ],
+  "connections": {
+    "Vote Webhook": {
+      "main": [[{ "node": "Validate Vote", "type": "main", "index": 0 }]]
+    },
+    "Validate Vote": {
+      "main": [[{ "node": "Valid?", "type": "main", "index": 0 }]]
+    },
+    "Valid?": {
+      "main": [
+        [{ "node": "Get Existing Votes", "type": "main", "index": 0 }],
+        [{ "node": "Respond Invalid Vote", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Existing Votes": {
+      "main": [[{ "node": "Check Existing Vote", "type": "main", "index": 0 }]]
+    },
+    "Check Existing Vote": {
+      "main": [[{ "node": "Already Voted?", "type": "main", "index": 0 }]]
+    },
+    "Already Voted?": {
+      "main": [
+        [{ "node": "Respond Already Voted", "type": "main", "index": 0 }],
+        [{ "node": "Create Vote in Notion", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Vote in Notion": {
+      "main": [[{ "node": "Respond Vote Saved", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "settings": { "executionOrder": "v1" },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-22T00:00:00.000Z",
+  "versionId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}
