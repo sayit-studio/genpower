@@ -237,7 +237,7 @@ function RegisterForm() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.7, delay: 0.2 }}
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '320px' }}
+        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '320px', gap: '32px' }}
       >
         <p style={{
           fontFamily: "'Noto Serif TC', serif",
@@ -246,9 +246,44 @@ function RegisterForm() {
           letterSpacing: '2px',
           textAlign: 'center',
           lineHeight: 1.8,
+          margin: 0,
         }}>
           報名成功！<br />我們將盡快與您聯繫
         </p>
+        <a
+          href="https://lin.ee/V4cEC4g"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '10px',
+            background: '#06C755',
+            color: '#FFFFFF',
+            fontFamily: "'Noto Serif TC', serif",
+            fontWeight: 700,
+            fontSize: '15px',
+            letterSpacing: '2px',
+            padding: '14px 36px',
+            borderRadius: '4px',
+            textDecoration: 'none',
+            boxShadow: '0 2px 16px rgba(6,199,85,0.35)',
+            transition: 'transform 0.2s ease, filter 0.2s ease',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'translateY(-2px)'
+            e.currentTarget.style.filter = 'brightness(1.1)'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'translateY(0)'
+            e.currentTarget.style.filter = 'brightness(1)'
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 40 40" fill="currentColor">
+            <path d="M20 2C10.06 2 2 9.16 2 17.96c0 7.86 6.98 14.44 16.42 15.72.64.14 1.51.42 1.73.96.2.49.13 1.26.06 1.76l-.28 1.66c-.08.49-.38 1.93 1.69 1.05 2.07-.88 11.17-6.58 15.24-11.27C38.66 24.6 38 21.38 38 17.96 38 9.16 29.94 2 20 2z"/>
+          </svg>
+          加入 LINE 等候通知
+        </a>
       </motion.div>
     )
   }
