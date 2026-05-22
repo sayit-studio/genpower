@@ -319,8 +319,8 @@ export default function VotePage() {
       if (!res.ok) return
 
       const data = await res.json() as
-        | { playerId: string; playerName: string; votes: number }[]
-        | { players?: { playerId: string; playerName: string; votes: number }[]; hasVoted?: boolean; votedTarget?: string }
+        | { playerId: string; playerName: string; votes: number; photoUrl?: string }[]
+        | { players?: { playerId: string; playerName: string; votes: number; photoUrl?: string }[]; hasVoted?: boolean; votedTarget?: string }
 
       const items = Array.isArray(data) ? data : (data.players ?? [])
       const meta = Array.isArray(data) ? {} : data
@@ -332,7 +332,7 @@ export default function VotePage() {
               id: item.playerId,
               number: parseInt(item.playerId, 10) || idx + 1,
               name: item.playerName || '選手募集中',
-              photoUrl: undefined as string | undefined,
+              photoUrl: item.photoUrl || undefined,
               votes: item.votes ?? 0,
             }))
             .sort((a, b) => a.number - b.number)
