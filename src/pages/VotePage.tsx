@@ -385,10 +385,11 @@ export default function VotePage() {
   const handleVote = useCallback((player: Player) => {
     if (isExpired) { pushToast('投票已截止', 'error'); return }
 
-    // 未登入 → 直接進入 LIFF 登入
+    // 未登入 → 直接進入 LIFF 登入，明確指定回到投票頁
     if (!lineUser) {
       import('@line/liff').then(({ default: liff }) => {
-        liff.login({ redirectUri: window.location.href })
+        const voteUrl = `${window.location.origin}${window.location.pathname}#/vote`
+        liff.login({ redirectUri: voteUrl })
       })
       return
     }

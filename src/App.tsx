@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import Header from './components/layout/Header'
@@ -7,6 +8,8 @@ import PrivacyBanner from './components/ui/PrivacyBanner'
 import HomePage from './pages/HomePage'
 import VotePage from './pages/VotePage'
 import RegisterPage from './pages/RegisterPage'
+
+const LIFF_ID = '2009556470-3qckbElp'
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -26,6 +29,16 @@ function AnimatedRoutes() {
 }
 
 export default function App() {
+  // LINE OAuth 完成後會帶 ?liff.state=... 回到 LIFF endpoint（首頁）
+  // 這裡呼叫 liff.init() 讓 SDK 處理 token 並跳回原本的 redirectUri（投票頁）
+  useEffect(() => {
+    if (window.location.search.includes('liff.state')) {
+      import('@line/liff').then(({ default: liff }) => {
+        liff.init({ liffId: LIFF_ID }).catch(() => {})
+      })
+    }
+  }, [])
+
   return (
     <>
       <HashRouter>
