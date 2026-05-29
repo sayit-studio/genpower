@@ -149,16 +149,17 @@ function CustomCheckbox({ checked, onChange }: { checked: boolean; onChange: () 
       style={{
         width: '18px',
         height: '18px',
-        border: `1px solid ${checked ? '#CC1200' : 'rgba(255,255,255,0.3)'}`,
+        border: `1px solid ${checked ? '#CC1200' : 'rgba(255,255,255,0.75)'}`,
         borderRadius: '3px',
-        background: checked ? '#CC1200' : 'transparent',
+        background: checked ? '#CC1200' : 'rgba(255,255,255,0.08)',
+        boxShadow: checked ? '0 0 12px rgba(204,18,0,0.35)' : 'inset 0 0 0 1px rgba(0,0,0,0.45)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
         flexShrink: 0,
         padding: 0,
-        transition: 'background 0.2s ease, border-color 0.2s ease',
+        transition: 'background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
       }}
     >
       {checked && (
