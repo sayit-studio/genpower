@@ -20,6 +20,7 @@ interface Stage {
   imageDesktop: string
   imageMobile: string
   quote: string
+  info?: string
   description: string
   items: StageItem[]
 }
@@ -57,13 +58,14 @@ const STAGES: Stage[] = [
     imageDesktop: asset('/assets/stages/stage-02-chaos-desktop.png'),
     imageMobile: asset('/assets/stages/stage-02-chaos-mobile.png'),
     quote: '真正的地獄才剛開始！18 進 9 的生存淘汰，當「命運障礙卡」降臨，誰能笑到最後？',
+    info: '⏱ 時間：20 分鐘 ｜ 🥤 飲品：限官方提供',
     description:
-      '成功晉級的 18 位勇者同場廝殺！這次要面對的是整整 3 盒的重磅考驗，且全程禁止常規飲水。更刺激的是，突如其來的「趣味障礙卡」將徹底打亂你的節奏！是抽到「解渴神飲」上天堂，還是命中「芥末地獄」辣到懷疑人生？吃完不夠看，這關只留下最快的 9 個人——快人一步，才是活路。',
+      '成功晉級的 18 位勇者同場廝殺！這次要面對的是整整 3 盒的重磅考驗，全程只能飲用官方提供的指定飲料。更刺激的是，突如其來的「趣味障礙卡」將徹底打亂你的節奏！是抽到「解渴神飲」上天堂，還是命中「芥末地獄」辣到懷疑人生？吃完不夠看，這關只留下最快的 9 個人——快人一步，才是活路。',
     items: [
       {
         icon: '🎯',
         label: '闖關任務',
-        text: '限時內硬扛吃完 3 盒（36 顆）章魚燒。',
+        text: '20 分鐘內硬扛吃完 3 盒（36 顆）章魚燒。',
         type: 'mission',
       },
       {
@@ -87,13 +89,14 @@ const STAGES: Stage[] = [
     imageDesktop: asset('/assets/stages/stage-03-limit-desktop.jpg'),
     imageMobile: asset('/assets/stages/stage-03-limit-mobile.png'),
     quote: '忘掉飽足感，這裡只有無止盡的章魚燒狂潮！挑戰你以為的極限。',
+    info: '⏱ 時間：15 分鐘',
     description:
       '來到最終戰，沒有終點，只有無限補盤的持續轟炸！晉級的 9 強將展開最終肉搏，考驗的是絕對的胃容量與驚人意志力。撐開你的胃，盡情吞噬吧！',
     items: [
       {
         icon: '🎯',
         label: '闖關任務',
-        text: '章魚燒不間斷補給，時間內吃下最多顆！',
+        text: '15 分鐘內章魚燒不斷補給，吃下最多顆者勝！',
         type: 'mission',
       },
       {
@@ -209,6 +212,20 @@ function StageAccordionCard({
           >
             「{stage.quote}」
           </p>
+
+          {stage.info && (
+            <p
+              style={{
+                fontFamily: "'Noto Sans TC', sans-serif",
+                fontSize: isMobile ? '12px' : '13px',
+                color: 'rgba(255,255,255,0.72)',
+                lineHeight: 1.7,
+                margin: '0 0 14px',
+              }}
+            >
+              {stage.info}
+            </p>
+          )}
 
           {/* 說明文字 */}
           <p
