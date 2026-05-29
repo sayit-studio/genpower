@@ -16,6 +16,11 @@ const NOTICES = [
     content: '報名即享：T-shirt、毛巾、頭巾、扇子',
   },
   {
+    icon: '⚠️',
+    title: '重要提醒',
+    content: '報名成功後請加入官方LINE索取匯款資訊，報名名額有限請至官方LINE完成報名程序。',
+  },
+  {
     icon: '📋',
     title: '參賽資格',
     content: '・需年滿18歲\n・現場完成簽到及規則認同書簽署\n・活動當天設有醫護人員待命',
