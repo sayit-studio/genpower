@@ -106,7 +106,7 @@ body::before {
   50%       { box-shadow: 0 0 24px 6px #D4A017cc, 0 0 60px 16px #D4A01766; }
 }
 
-/* ripple 脈衝（投票 CTA）*/
+/* ripple 脈衝（CTA）*/
 @keyframes ripple-pulse {
   0%   { transform: scale(1); opacity: 0.8; }
   100% { transform: scale(2.2); opacity: 0; }

@@ -9,8 +9,8 @@ interface PrivacyModalProps {
 const sections = [
   {
     title: '一、資料蒐集目的',
-    zh: '本活動蒐集您的個人資料，用於活動報名審核、投票抽獎資格確認及得獎通知。',
-    en: 'We collect your personal data for event registration review, voting eligibility, and prize notifications.',
+    zh: '本活動蒐集您的個人資料，用於活動報名審核、抽獎資格確認及得獎通知。',
+    en: 'We collect your personal data for event registration review, giveaway eligibility, and prize notifications.',
   },
   {
     title: '二、資料使用範圍',

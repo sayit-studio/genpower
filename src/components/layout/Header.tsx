@@ -6,8 +6,7 @@ import { asset } from '../../utils/asset'
 const navLinks = [
   { label: '活動介紹', id: 'about' },
   { label: '如何參賽', id: 'process' },
-  { label: '投票抽獎', id: 'players' },
-  { label: '分享拿好禮', id: 'gift' },
+  { label: '留言抽獎', id: 'gift' },
 ]
 
 export default function Header() {

@@ -77,7 +77,7 @@ export default function PrivacyBanner({ introComplete }: PrivacyBannerProps) {
                   marginBottom: '4px',
                 }}
               >
-                本網站蒐集您的個人資料用於活動報名、投票抽獎及得獎通知，資料不對外提供第三方。繼續使用即表示您同意本活動隱私權條款。
+                本網站蒐集您的個人資料用於活動報名、抽獎資格確認及得獎通知，資料不對外提供第三方。繼續使用即表示您同意本活動隱私權條款。
               </p>
               <p
                 style={{
@@ -86,7 +86,7 @@ export default function PrivacyBanner({ introComplete }: PrivacyBannerProps) {
                   lineHeight: 1.8,
                 }}
               >
-                This site collects your personal data for event registration, voting, and prize notifications only. Data will not be shared with third parties. By continuing, you agree to our Privacy Policy.
+                This site collects your personal data for event registration, giveaway eligibility, and prize notifications only. Data will not be shared with third parties. By continuing, you agree to our Privacy Policy.
               </p>
             </div>
 

@@ -4,20 +4,20 @@ const steps = [
   {
     label: 'STEP 01',
     number: '01',
-    title: '留言指定貼文',
-    desc: '前往官方 IG 指定貼文，留下你的支持',
+    title: '前往官方 IG',
+    desc: '找到活動指定貼文，準備留下參與留言',
   },
   {
     label: 'STEP 02',
     number: '02',
-    title: '分享至限時動態',
-    desc: '將活動貼文分享至個人限時動態',
+    title: '留言 +1',
+    desc: '在指定貼文下方留言 +1，完成參與動作',
   },
   {
     label: 'STEP 03',
     number: '03',
-    title: '限動需公開可見',
-    desc: '確保限時動態為公開狀態，方可列入抽獎資格',
+    title: 'TAG 2 名好友',
+    desc: '可重複留言，但每次須標記不同好友',
   },
 ]
 
@@ -33,8 +33,6 @@ export default function GiftSection() {
       <div className="gift-spotlight" aria-hidden="true" />
 
       <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-
-        {/* ① 小標籤 */}
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -48,10 +46,9 @@ export default function GiftSection() {
             marginBottom: '16px',
           }}
         >
-          LIMITED OFFER
+          IG GIVEAWAY
         </motion.p>
 
-        {/* ② 主標第一行 */}
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -67,10 +64,9 @@ export default function GiftSection() {
             marginBottom: 0,
           }}
         >
-          留言＋分享＋限動
+          留言 +1 TAG 好友
         </motion.h2>
 
-        {/* ② 主標第二行 */}
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -86,10 +82,9 @@ export default function GiftSection() {
             marginBottom: '32px',
           }}
         >
-          抽走限量章魚燒餐券
+          賽後直播抽周邊好禮
         </motion.h2>
 
-        {/* ③ 獎品說明 */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -106,7 +101,7 @@ export default function GiftSection() {
               marginBottom: '8px',
             }}
           >
-            5位得獎者｜每人 4 張餐券
+            3 位得獎者｜周邊商品一組 + 章魚燒兌換券
           </p>
           <p
             style={{
@@ -117,11 +112,10 @@ export default function GiftSection() {
               marginBottom: '64px',
             }}
           >
-            2026.07.19 活動當天直播抽出
+            2026.07.19 活動賽後直播抽出
           </p>
         </motion.div>
 
-        {/* ④ 三步驟卡片 */}
         <div className="gift-steps-grid" style={{ marginBottom: '48px' }}>
           {steps.map((step, i) => (
             <motion.div
@@ -188,7 +182,6 @@ export default function GiftSection() {
           ))}
         </div>
 
-        {/* ⑤ 領取說明 */}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -203,26 +196,19 @@ export default function GiftSection() {
             marginBottom: '48px',
           }}
         >
-          得獎後至門市出示：限動截圖、留言截圖及本人帳號，需與參與帳號相符
+          於官方 IG 指定貼文下方留言 +1 並 TAG 2 名好友，即可取得抽獎資格；可重複留言，但每次需標記不同好友。
         </motion.p>
 
-        {/* ⑥ CTA 按鈕 */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 1 }}
         >
-          <a
-            href="https://www.instagram.com/takoyaki.tw/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="gift-cta"
-          >
-            立即分享
-          </a>
+          <button type="button" className="gift-cta">
+            指定貼文上架後開放
+          </button>
         </motion.div>
-
       </div>
 
       <style>{`
@@ -276,8 +262,9 @@ export default function GiftSection() {
           text-decoration: none;
           box-shadow: 0 2px 24px rgba(255,107,0,0.4);
           overflow: hidden;
-          transition: transform 0.25s ease, filter 0.25s ease;
+          transition: filter 0.25s ease;
           z-index: 0;
+          cursor: default;
         }
 
         .gift-cta::before {
@@ -295,11 +282,6 @@ export default function GiftSection() {
         @keyframes burnPulse {
           0%, 100% { opacity: 0.5; }
           50%       { opacity: 1; }
-        }
-
-        .gift-cta:hover {
-          transform: translateY(-3px);
-          filter: brightness(1.15);
         }
 
         @media (max-width: 768px) {
