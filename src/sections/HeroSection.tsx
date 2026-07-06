@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import SplitText from '../components/reactbits/SplitText'
 import BlurText from '../components/reactbits/BlurText'
@@ -6,6 +7,7 @@ import { asset } from '../utils/asset'
 
 export default function HeroSection() {
   const isMobile = useMediaQuery('(max-width: 768px)')
+  const videoRef = useRef<HTMLVideoElement | null>(null)
 
   const videoSrc = isMobile
     ? asset('/assets/hero/hero-bg-mobile.mp4')
@@ -13,6 +15,38 @@ export default function HeroSection() {
   const videoSrcWebm = isMobile
     ? asset('/assets/hero/hero-bg-mobile.webm')
     : asset('/assets/hero/hero-bg.webm')
+  const posterSrc = asset('/assets/hero/hero-bg.png')
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    video.muted = true
+    video.defaultMuted = true
+    video.playsInline = true
+
+    const playHeroVideo = () => {
+      const attempt = video.play()
+      if (attempt?.catch) attempt.catch(() => undefined)
+    }
+
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      playHeroVideo()
+    } else {
+      video.addEventListener('loadeddata', playHeroVideo, { once: true })
+    }
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden && video.paused) playHeroVideo()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      video.removeEventListener('loadeddata', playHeroVideo)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [videoSrc])
 
   const scrollToAbout = () => {
     document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })
@@ -27,11 +61,15 @@ export default function HeroSection() {
     }}>
       {/* 影片背景 */}
       <video
+        ref={videoRef}
         key={videoSrc}
         autoPlay
         muted
         loop
         playsInline
+        preload="metadata"
+        poster={posterSrc}
+        aria-hidden="true"
         style={{
           position: 'absolute', inset: 0,
           width: '100%', height: '100%',
