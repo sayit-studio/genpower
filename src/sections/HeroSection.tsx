@@ -15,7 +15,6 @@ export default function HeroSection() {
   const videoSrcWebm = isMobile
     ? asset('/assets/hero/hero-bg-mobile.webm')
     : asset('/assets/hero/hero-bg.webm')
-  const posterSrc = asset('/assets/hero/hero-bg.png')
 
   useEffect(() => {
     const video = videoRef.current
@@ -24,6 +23,9 @@ export default function HeroSection() {
     video.muted = true
     video.defaultMuted = true
     video.playsInline = true
+    video.setAttribute('muted', '')
+    video.setAttribute('playsinline', '')
+    video.setAttribute('webkit-playsinline', '')
 
     const playHeroVideo = () => {
       const attempt = video.play()
@@ -34,6 +36,7 @@ export default function HeroSection() {
       playHeroVideo()
     } else {
       video.addEventListener('loadeddata', playHeroVideo, { once: true })
+      video.addEventListener('canplay', playHeroVideo, { once: true })
     }
 
     const handleVisibilityChange = () => {
@@ -41,10 +44,13 @@ export default function HeroSection() {
     }
 
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('touchstart', playHeroVideo, { once: true, passive: true })
 
     return () => {
       video.removeEventListener('loadeddata', playHeroVideo)
+      video.removeEventListener('canplay', playHeroVideo)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('touchstart', playHeroVideo)
     }
   }, [videoSrc])
 
@@ -67,8 +73,7 @@ export default function HeroSection() {
         muted
         loop
         playsInline
-        preload="metadata"
-        poster={posterSrc}
+        preload="auto"
         aria-hidden="true"
         style={{
           position: 'absolute', inset: 0,
